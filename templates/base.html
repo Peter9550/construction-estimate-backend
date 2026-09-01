@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Справочник строительных ресурсов{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="screen">
+    {% block content %}{% endblock %}
+
+    <nav class="tab-bar">
+        <a href="/craft-resources/feed" class="tab {% if active_tab == 'feed' %}tab-active{% endif %}">Лента</a>
+        <a href="/craft-resources/draft" class="tab {% if active_tab == 'draft' %}tab-active{% endif %}">Добавление</a>
+        <a href="/craft-resources" class="tab {% if active_tab == 'catalog' %}tab-active{% endif %}">Плитка</a>
+    </nav>
+</div>
+</body>
+</html>

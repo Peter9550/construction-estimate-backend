@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ craft_resource.resource_name }} — справочник ресурсов{% endblock %}
+
+{% block content %}
+<div class="feed">
+    <video class="feed-video"
+           poster="{{ minio_base_url }}/{{ craft_resource.image_key }}"
+           autoplay muted loop playsinline>
+        <source src="{{ minio_base_url }}/{{ craft_resource.video_key }}" type="video/mp4">
+    </video>
+
+    <div class="feed-shade"></div>
+
+    <div class="feed-info">
+        <h1 class="feed-name">{{ craft_resource.resource_name }}</h1>
+        <p class="feed-price">{{ craft_resource.historical_price }} {{ craft_resource.price_currency }} / {{ craft_resource.measure_unit }}</p>
+        <p class="feed-year">{{ craft_resource.base_year }} год · {{ craft_resource.resource_category }}</p>
+
+        <details class="feed-description">
+            <summary>{{ craft_resource.resource_description | truncate(88, true, '…') }}<span class="feed-more">ещё</span></summary>
+            <p>{{ craft_resource.resource_description }}</p>
+        </details>
+    </div>
+
+    <div class="feed-like">
+        <span class="feed-like-circle">&#9829;</span>
+        <span class="feed-like-count">{{ craft_resource.likes_count }}</span>
+    </div>
+
+    <a class="feed-next" href="/craft-resources/feed/{{ craft_resource.id }}?next=true">Следующий</a>
+</div>
+{% endblock %}

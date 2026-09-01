@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Добавление ресурса{% endblock %}
+
+{% block content %}
+<div class="draft">
+    <div class="draft-head">
+        <h1 class="draft-title">Добавление ресурса</h1>
+        <span class="draft-badge">{{ craft_resource.resource_status }}</span>
+    </div>
+
+    <p class="draft-label">Изображение и видео</p>
+    <div class="draft-media">
+        <div class="draft-media-box">
+            <img class="draft-media-image" src="{{ minio_base_url }}/{{ craft_resource.image_key }}" alt="{{ craft_resource.resource_name }}">
+            <span class="draft-media-key">{{ craft_resource.image_key }}</span>
+        </div>
+        <div class="draft-media-box">
+            <video class="draft-media-video"
+                   poster="{{ minio_base_url }}/{{ craft_resource.image_key }}"
+                   autoplay muted loop playsinline>
+                <source src="{{ minio_base_url }}/{{ craft_resource.video_key }}" type="video/mp4">
+            </video>
+            <span class="draft-media-key">{{ craft_resource.video_key }}</span>
+        </div>
+    </div>
+
+    <p class="draft-label">Название</p>
+    <input class="draft-field" type="text" value="{{ craft_resource.resource_name }}">
+
+    <p class="draft-label">Описание</p>
+    <textarea class="draft-field draft-area" rows="3">{{ craft_resource.resource_description }}</textarea>
+
+    <p class="draft-label">Цена и единица измерения</p>
+    <div class="draft-row">
+        <input class="draft-field" type="text" value="{{ craft_resource.historical_price or '' }}" placeholder="{{ craft_resource.price_currency }}">
+        <input class="draft-field" type="text" value="{{ craft_resource.measure_unit }}">
+    </div>
+
+    <p class="draft-label">Год цены</p>
+    <input class="draft-field" type="text" value="{{ craft_resource.base_year }}">
+
+    <p class="draft-label">Категория</p>
+    <div class="draft-row">
+        <label class="draft-radio">
+            <input type="radio" name="resource_category" value="работы"
+                   {% if craft_resource.resource_category == 'работы' %}checked{% endif %}>
+            работы
+        </label>
+        <label class="draft-radio">
+            <input type="radio" name="resource_category" value="материалы"
+                   {% if craft_resource.resource_category == 'материалы' %}checked{% endif %}>
+            материалы
+        </label>
+    </div>
+
+    <button class="draft-publish" type="button">Опубликовать</button>
+</div>
+{% endblock %}
