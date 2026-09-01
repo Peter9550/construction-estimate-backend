@@ -16,10 +16,13 @@
         <p class="feed-price">{{ craft_resource.historical_price }} {{ craft_resource.price_currency }} / {{ craft_resource.measure_unit }}</p>
         <p class="feed-year">{{ craft_resource.base_year }} год · {{ craft_resource.resource_category }}</p>
 
+        {% if craft_resource.description_tail %}
         <details class="feed-description">
-            <summary>{{ craft_resource.resource_description | truncate(88, true, '…') }}<span class="feed-more">ещё</span></summary>
-            <p>{{ craft_resource.resource_description }}</p>
+            <summary>{{ craft_resource.description_head }}<span class="feed-more">… ещё</span></summary><span>{{ craft_resource.description_tail }}</span>
         </details>
+        {% else %}
+        <p class="feed-description">{{ craft_resource.description_head }}</p>
+        {% endif %}
     </div>
 
     <div class="feed-like">

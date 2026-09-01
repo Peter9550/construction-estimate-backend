@@ -117,7 +117,7 @@ body {
 }
 
 .feed-description summary {
-    display: block;
+    display: inline;
     list-style: none;
     cursor: pointer;
 }
@@ -126,14 +126,13 @@ body {
     display: none;
 }
 
-.feed-description p {
-    margin: 6px 0 0;
-}
-
 .feed-more {
-    margin-left: 6px;
     color: var(--red);
     font-weight: 700;
+}
+
+.feed-description[open] .feed-more {
+    display: none;
 }
 
 .feed-like {

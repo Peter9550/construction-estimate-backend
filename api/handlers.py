@@ -16,9 +16,24 @@ def published_resources():
     return [r for r in craft_resources if r["resource_status"] == STATUS_PUBLISHED]
 
 
+DESCRIPTION_HEAD_LENGTH = 88
+
+
 def with_likes_count(resource):
     card = dict(resource)
     card["likes_count"] = len(resource["liked_by"])
+
+    description = resource["resource_description"]
+    if len(description) > DESCRIPTION_HEAD_LENGTH:
+        cut = description.rfind(" ", 0, DESCRIPTION_HEAD_LENGTH)
+        if cut == -1:
+            cut = DESCRIPTION_HEAD_LENGTH
+        card["description_head"] = description[:cut]
+        card["description_tail"] = description[cut:]
+    else:
+        card["description_head"] = description
+        card["description_tail"] = ""
+
     return card
 
 
