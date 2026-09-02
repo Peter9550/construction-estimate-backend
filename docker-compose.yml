@@ -1,3 +1,5 @@
+name: historical-budget-backend
+
 services:
 
   minio:

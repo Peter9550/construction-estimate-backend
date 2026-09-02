@@ -15,7 +15,8 @@
 
 body {
     margin: 0;
-    background: var(--graphite);
+    padding: 24px 0;
+    background: #202124;
     font-family: "PT Sans", Arial, Helvetica, sans-serif;
     color: var(--text);
 }
@@ -24,20 +25,19 @@ body {
     position: relative;
     width: 100%;
     max-width: 390px;
-    min-height: 844px;
+    height: 844px;
     margin: 0 auto;
-    padding-bottom: 64px;
     background: var(--light);
     overflow: hidden;
+    border-radius: 28px;
+    box-shadow: 0 12px 44px rgba(0, 0, 0, 0.55);
 }
 
 .tab-bar {
-    position: fixed;
-    left: 50%;
+    position: absolute;
+    left: 0;
+    right: 0;
     bottom: 0;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 390px;
     height: 64px;
     display: flex;
     background: var(--graphite);
@@ -64,7 +64,7 @@ body {
 
 .feed {
     position: relative;
-    height: 780px;
+    height: calc(100% - 64px);
     overflow: hidden;
 }
 
@@ -184,6 +184,8 @@ body {
 }
 
 .catalog {
+    height: calc(100% - 64px);
+    overflow-y: auto;
     padding: 20px 16px 0;
 }
 
@@ -274,6 +276,8 @@ body {
 }
 
 .draft {
+    height: calc(100% - 64px);
+    overflow-y: auto;
     padding: 20px 16px 0;
 }
 
