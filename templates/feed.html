@@ -11,25 +11,40 @@
 
     <div class="feed-shade"></div>
 
-    <div class="feed-info">
-        <h1 class="feed-name">{{ craft_resource.resource_name }}</h1>
-        <p class="feed-price">{{ craft_resource.historical_price }} {{ craft_resource.price_currency }} / {{ craft_resource.measure_unit }}</p>
-        <p class="feed-year">{{ craft_resource.base_year }} год · {{ craft_resource.resource_category }}</p>
+    <div class="feed-overlay">
+        <div class="feed-side">
+            <div class="feed-action">
+                <span class="feed-action-circle">&#9829;</span>
+                <span class="feed-action-label">{{ craft_resource.likes_count }}</span>
+            </div>
 
-        {% if craft_resource.description_tail %}
-        <details class="feed-description">
-            <summary>{{ craft_resource.description_head }}<span class="feed-more">… ещё</span></summary><span>{{ craft_resource.description_tail }}</span>
-        </details>
-        {% else %}
-        <p class="feed-description">{{ craft_resource.description_head }}</p>
-        {% endif %}
+            <div class="feed-param">
+                <span class="feed-param-label">Цена</span>
+                <span class="feed-param-value">{{ craft_resource.historical_price }} {{ craft_resource.price_currency }}</span>
+                <span class="feed-param-unit">за {{ craft_resource.measure_unit }}</span>
+            </div>
+
+            <div class="feed-param">
+                <span class="feed-param-label">Год цены</span>
+                <span class="feed-param-value">{{ craft_resource.base_year }}</span>
+            </div>
+
+            <a class="feed-action feed-action-next" href="/craft-resources/feed/{{ craft_resource.id }}?next=true">
+                <span class="feed-action-circle">&#9660;</span>
+                <span class="feed-action-label">Следующий</span>
+            </a>
+        </div>
+
+        <div class="feed-info">
+            <h1 class="feed-name">{{ craft_resource.resource_name }}</h1>
+            {% if craft_resource.description_tail %}
+            <details class="feed-description">
+                <summary>{{ craft_resource.description_head }}<span class="feed-more">… ещё</span></summary><span>{{ craft_resource.description_tail }}</span>
+            </details>
+            {% else %}
+            <p class="feed-description">{{ craft_resource.description_head }}</p>
+            {% endif %}
+        </div>
     </div>
-
-    <div class="feed-like">
-        <span class="feed-like-circle">&#9829;</span>
-        <span class="feed-like-count">{{ craft_resource.likes_count }}</span>
-    </div>
-
-    <a class="feed-next" href="/craft-resources/feed/{{ craft_resource.id }}?next=true">Следующий</a>
 </div>
 {% endblock %}

@@ -6,8 +6,16 @@
     <h1 class="catalog-title">Справочник ресурсов</h1>
 
     <form class="catalog-filter" method="get" action="/craft-resources">
-        <input class="catalog-filter-input" type="text" name="maxHistoricalPrice"
-               value="{{ price_filter }}" placeholder="Цена до">
+        <div class="catalog-filter-head">
+            <span>Цена до</span>
+            <span class="catalog-filter-value">{{ price_limit }} коп.</span>
+        </div>
+        <input class="catalog-filter-range" type="range" name="maxHistoricalPrice"
+               min="{{ price_min }}" max="{{ price_max }}" step="1" value="{{ price_limit }}">
+        <div class="catalog-filter-scale">
+            <span>{{ price_min }}</span>
+            <span>{{ price_max }}</span>
+        </div>
         <button class="catalog-filter-button" type="submit">Найти</button>
     </form>
 

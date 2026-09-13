@@ -86,11 +86,91 @@ body {
     background: linear-gradient(to top, rgba(24, 25, 27, 0.95) 10%, rgba(24, 25, 27, 0.72) 45%, rgba(24, 25, 27, 0));
 }
 
-.feed-info {
+.feed-overlay {
     position: absolute;
-    left: 16px;
-    right: 86px;
-    bottom: 92px;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 16px 12px 20px 16px;
+}
+
+.feed-side {
+    align-self: flex-end;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 104px;
+}
+
+.feed-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--white);
+    text-decoration: none;
+}
+
+.feed-action-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(24, 25, 27, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    font-size: 22px;
+}
+
+.feed-action-label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.feed-action-next .feed-action-circle {
+    background: var(--red);
+    border-color: var(--red);
+    font-size: 18px;
+}
+
+.feed-action-next:hover .feed-action-circle {
+    background: var(--red-hover);
+    border-color: var(--red-hover);
+}
+
+.feed-param {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 8px 6px;
+    border-radius: 16px;
+    background: rgba(24, 25, 27, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--white);
+    text-align: center;
+}
+
+.feed-param-label {
+    font-size: 11px;
+    color: var(--light);
+}
+
+.feed-param-value {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.feed-param-unit {
+    font-size: 11px;
+    color: var(--light);
+}
+
+.feed-info {
     color: var(--white);
 }
 
@@ -100,18 +180,8 @@ body {
     font-weight: 700;
 }
 
-.feed-price {
-    margin: 0 0 2px;
-    font-size: 16px;
-}
-
-.feed-year {
-    margin: 0 0 6px;
-    font-size: 14px;
-    color: var(--light);
-}
-
 .feed-description {
+    margin: 0;
     font-size: 14px;
     line-height: 1.35;
 }
@@ -135,54 +205,6 @@ body {
     display: none;
 }
 
-.feed-like {
-    position: absolute;
-    right: 16px;
-    bottom: 132px;
-    width: 48px;
-    text-align: center;
-    color: var(--white);
-}
-
-.feed-like-circle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    font-size: 21px;
-}
-
-.feed-like-count {
-    display: block;
-    margin-top: 4px;
-    font-size: 13px;
-}
-
-.feed-next {
-    position: absolute;
-    left: 16px;
-    right: 16px;
-    bottom: 20px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 16px;
-    background: var(--red);
-    color: var(--white);
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-.feed-next:hover {
-    background: var(--red-hover);
-}
-
 .catalog {
     height: calc(100% - 64px);
     overflow-y: auto;
@@ -197,25 +219,43 @@ body {
 
 .catalog-filter {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
-}
-
-.catalog-filter-input {
-    flex: 1;
-    height: 44px;
-    padding: 0 14px;
+    padding: 12px 14px;
     border: 1px solid var(--border);
     border-radius: 16px;
     background: var(--white);
-    font-family: inherit;
-    font-size: 15px;
-    color: var(--text);
+}
+
+.catalog-filter-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.catalog-filter-value {
+    font-weight: 700;
+    color: var(--red);
+}
+
+.catalog-filter-range {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--red);
+    cursor: pointer;
+}
+
+.catalog-filter-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
 }
 
 .catalog-filter-button {
-    width: 88px;
-    height: 44px;
+    height: 40px;
     border: 0;
     border-radius: 16px;
     background: var(--red);
@@ -381,20 +421,3 @@ body {
     cursor: pointer;
 }
 
-.draft-publish {
-    width: 100%;
-    height: 48px;
-    margin: 16px 0 20px;
-    border: 0;
-    border-radius: 16px;
-    background: var(--red);
-    color: var(--white);
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.draft-publish:hover {
-    background: var(--red-hover);
-}

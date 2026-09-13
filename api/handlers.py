@@ -16,7 +16,7 @@ def published_resources():
     return [r for r in craft_resources if r["resource_status"] == STATUS_PUBLISHED]
 
 
-DESCRIPTION_HEAD_LENGTH = 88
+DESCRIPTION_HEAD_LENGTH = 70
 
 
 def with_likes_count(resource):
@@ -39,13 +39,17 @@ def with_likes_count(resource):
 
 @router.get("/craft-resources")
 def get_craft_resource_catalog(request: Request, maxHistoricalPrice: str = ""):
-    price_filter = maxHistoricalPrice.strip()
     resources = published_resources()
+    prices = [r["historical_price"] for r in resources]
+    price_min = min(prices, default=0)
+    price_max = max(prices, default=0)
 
+    price_limit = price_max
+    price_filter = maxHistoricalPrice.strip()
     if price_filter.isdigit():
-        limit = int(price_filter)
-        resources = [r for r in resources if r["historical_price"] <= limit]
+        price_limit = int(price_filter)
 
+    resources = [r for r in resources if r["historical_price"] <= price_limit]
     cards = [with_likes_count(r) for r in resources]
 
     return templates.TemplateResponse(
@@ -53,7 +57,9 @@ def get_craft_resource_catalog(request: Request, maxHistoricalPrice: str = ""):
         name="catalog.html",
         context={
             "craft_resources": cards,
-            "price_filter": price_filter,
+            "price_limit": price_limit,
+            "price_min": price_min,
+            "price_max": price_max,
             "active_tab": "catalog",
             "minio_base_url": MINIO_BASE_URL,
         },
