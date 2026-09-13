@@ -1,9 +1,9 @@
-name: historical-budget-backend
+name: construction-estimate-backend
 
 services:
 
   minio:
-    container_name: historical-budget-minio
+    container_name: construction-estimate-minio
     image: minio/minio:latest
     ports:
       - "9000:9000"

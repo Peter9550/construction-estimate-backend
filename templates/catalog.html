@@ -5,7 +5,7 @@
 <div class="catalog">
     <h1 class="catalog-title">Справочник ресурсов</h1>
 
-    <form class="catalog-filter" method="get" action="/craft-resources">
+    <form class="catalog-filter" method="get" action="/construction-resources">
         <div class="catalog-filter-head">
             <span>Цена до</span>
             <span class="catalog-filter-value">{{ price_limit }} коп.</span>
@@ -20,12 +20,12 @@
     </form>
 
     <div class="catalog-grid">
-        {% for craft_resource in craft_resources %}
-        <a class="card" href="/craft-resources/feed/{{ craft_resource.id }}">
-            <img class="card-image" src="{{ minio_base_url }}/{{ craft_resource.image_key }}" alt="{{ craft_resource.resource_name }}">
-            <span class="card-name">{{ craft_resource.resource_name }}</span>
-            <span class="card-price">{{ craft_resource.historical_price }} {{ craft_resource.price_currency }} / {{ craft_resource.measure_unit }}</span>
-            <span class="card-likes">&#9829; {{ craft_resource.likes_count }}</span>
+        {% for construction_resource in construction_resources %}
+        <a class="card" href="/construction-resources/feed/{{ construction_resource.id }}">
+            <img class="card-image" src="{{ minio_base_url }}/{{ construction_resource.image_key }}" alt="{{ construction_resource.resource_name }}">
+            <span class="card-name">{{ construction_resource.resource_name }}</span>
+            <span class="card-price">{{ construction_resource.historical_price }} {{ construction_resource.price_currency }} / {{ construction_resource.measure_unit }}</span>
+            <span class="card-likes">&#9829; {{ construction_resource.likes_count }}</span>
         </a>
         {% endfor %}
     </div>

@@ -1,10 +1,10 @@
-MINIO_BASE_URL = "http://localhost:9000/craft-resource-media"
+MINIO_BASE_URL = "http://localhost:9000/construction-resource-media"
 
 STATUS_DRAFT = "черновик"
 STATUS_PUBLISHED = "опубликован"
 STATUS_DELETED = "удален"
 
-craft_resources = [
+construction_resources = [
     {
         "id": 1,
         "resource_name": "Каменная кладка",

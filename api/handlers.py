@@ -5,7 +5,7 @@ from data.collections import (
     MINIO_BASE_URL,
     STATUS_DRAFT,
     STATUS_PUBLISHED,
-    craft_resources,
+    construction_resources,
 )
 
 router = APIRouter()
@@ -13,7 +13,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 def published_resources():
-    return [r for r in craft_resources if r["resource_status"] == STATUS_PUBLISHED]
+    return [r for r in construction_resources if r["resource_status"] == STATUS_PUBLISHED]
 
 
 DESCRIPTION_HEAD_LENGTH = 70
@@ -37,8 +37,8 @@ def with_likes_count(resource):
     return card
 
 
-@router.get("/craft-resources")
-def get_craft_resource_catalog(request: Request, maxHistoricalPrice: str = ""):
+@router.get("/construction-resources")
+def get_construction_resource_catalog(request: Request, maxHistoricalPrice: str = ""):
     resources = published_resources()
     prices = [r["historical_price"] for r in resources]
     price_min = min(prices, default=0)
@@ -56,7 +56,7 @@ def get_craft_resource_catalog(request: Request, maxHistoricalPrice: str = ""):
         request=request,
         name="catalog.html",
         context={
-            "craft_resources": cards,
+            "construction_resources": cards,
             "price_limit": price_limit,
             "price_min": price_min,
             "price_max": price_max,
@@ -66,15 +66,15 @@ def get_craft_resource_catalog(request: Request, maxHistoricalPrice: str = ""):
     )
 
 
-@router.get("/craft-resources/draft")
-def get_craft_resource_draft(request: Request):
-    for resource in craft_resources:
+@router.get("/construction-resources/draft")
+def get_construction_resource_draft(request: Request):
+    for resource in construction_resources:
         if resource["resource_status"] == STATUS_DRAFT:
             return templates.TemplateResponse(
                 request=request,
                 name="draft.html",
                 context={
-                    "craft_resource": with_likes_count(resource),
+                    "construction_resource": with_likes_count(resource),
                     "active_tab": "draft",
                     "minio_base_url": MINIO_BASE_URL,
                 },
@@ -82,9 +82,9 @@ def get_craft_resource_draft(request: Request):
     raise HTTPException(status_code=404, detail="Черновик не найден")
 
 
-@router.get("/craft-resources/feed")
-@router.get("/craft-resources/feed/{resource_id}")
-def get_craft_resource_feed(request: Request, resource_id: int = 0, next: bool = False):
+@router.get("/construction-resources/feed")
+@router.get("/construction-resources/feed/{resource_id}")
+def get_construction_resource_feed(request: Request, resource_id: int = 0, next: bool = False):
     resources = published_resources()
     if not resources:
         raise HTTPException(status_code=404, detail="Опубликованных ресурсов нет")
@@ -108,7 +108,7 @@ def get_craft_resource_feed(request: Request, resource_id: int = 0, next: bool =
         request=request,
         name="feed.html",
         context={
-            "craft_resource": with_likes_count(current),
+            "construction_resource": with_likes_count(current),
             "following_id": following["id"],
             "active_tab": "feed",
             "minio_base_url": MINIO_BASE_URL,
