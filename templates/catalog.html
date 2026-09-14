@@ -21,12 +21,20 @@
 
     <div class="catalog-grid">
         {% for construction_resource in construction_resources %}
-        <a class="card" href="/construction-resources/feed/{{ construction_resource.id }}">
-            <img class="card-image" src="{{ minio_base_url }}/{{ construction_resource.image_key }}" alt="{{ construction_resource.resource_name }}">
-            <span class="card-name">{{ construction_resource.resource_name }}</span>
-            <span class="card-price">{{ construction_resource.historical_price }} {{ construction_resource.price_currency }} / {{ construction_resource.measure_unit }}</span>
-            <span class="card-likes">&#9829; {{ construction_resource.likes_count }}</span>
-        </a>
+        <div class="card">
+            <a class="card-link" href="/construction-resources/feed/{{ construction_resource.id }}">
+                <img class="card-image"
+                     src="{{ construction_resource.image_url or default_image_url }}"
+                     onerror="this.onerror=null; this.src='{{ default_image_url }}'"
+                     alt="{{ construction_resource.resource_name }}">
+                <span class="card-name">{{ construction_resource.resource_name }}</span>
+                <span class="card-price">{{ construction_resource.historical_price }} коп. · {{ construction_resource.base_year }} г.</span>
+                <span class="card-likes">&#9829; {{ likes_count.get(construction_resource.id, 0) }}</span>
+            </a>
+            <form class="card-delete" method="post" action="/construction-resources/{{ construction_resource.id }}/delete">
+                <button class="card-delete-button" type="submit">Удалить</button>
+            </form>
+        </div>
         {% endfor %}
     </div>
 </div>

@@ -5,52 +5,66 @@
 <div class="draft">
     <div class="draft-head">
         <h1 class="draft-title">Добавление ресурса</h1>
+        {% if construction_resource %}
         <span class="draft-badge">{{ construction_resource.resource_status }}</span>
+        {% endif %}
     </div>
 
     <p class="draft-label">Изображение и видео</p>
     <div class="draft-media">
         <div class="draft-media-box">
-            <img class="draft-media-image" src="{{ minio_base_url }}/{{ construction_resource.image_key }}" alt="{{ construction_resource.resource_name }}">
-            <span class="draft-media-key">{{ construction_resource.image_key }}</span>
+            <img class="draft-media-image"
+                 src="{{ construction_resource.image_url or default_image_url }}"
+                 onerror="this.onerror=null; this.src='{{ default_image_url }}'"
+                 alt="Изображение ресурса">
         </div>
         <div class="draft-media-box">
-            <video class="draft-media-video"
-                   poster="{{ minio_base_url }}/{{ construction_resource.image_key }}"
-                   autoplay muted loop playsinline>
-                <source src="{{ minio_base_url }}/{{ construction_resource.video_key }}" type="video/mp4">
+            <video class="draft-media-video" autoplay muted loop playsinline>
+                {% if construction_resource.video_url %}
+                <source src="{{ construction_resource.video_url }}" type="video/mp4">
+                {% endif %}
+                <source src="{{ default_video_url }}" type="video/mp4">
             </video>
-            <span class="draft-media-key">{{ construction_resource.video_key }}</span>
         </div>
     </div>
 
-    <p class="draft-label">Название</p>
-    <input class="draft-field" type="text" value="{{ construction_resource.resource_name }}">
+    {% if construction_resource %}
+    <form method="post" action="/construction-resources/draft/publish">
+        <p class="draft-label">Название</p>
+        <input class="draft-field" type="text" name="resource_name" maxlength="100"
+               value="{{ construction_resource.resource_name }}" required>
 
-    <p class="draft-label">Описание</p>
-    <textarea class="draft-field draft-area" rows="3">{{ construction_resource.resource_description }}</textarea>
+        <p class="draft-label">Краткое описание</p>
+        <textarea class="draft-field draft-area" name="resource_description" maxlength="500" required>{{ construction_resource.resource_description or '' }}</textarea>
 
-    <p class="draft-label">Цена и единица измерения</p>
-    <div class="draft-row">
-        <input class="draft-field" type="text" value="{{ construction_resource.historical_price or '' }}" placeholder="{{ construction_resource.price_currency }}">
-        <input class="draft-field" type="text" value="{{ construction_resource.measure_unit }}">
-    </div>
+        <div class="draft-row">
+            <label class="draft-column">
+                <span class="draft-label">Цена, коп.</span>
+                <input class="draft-field" type="number" name="historical_price" min="1"
+                       value="{{ construction_resource.historical_price or '' }}" required>
+            </label>
+            <label class="draft-column">
+                <span class="draft-label">Год цены</span>
+                <input class="draft-field" type="number" name="base_year" min="1"
+                       value="{{ construction_resource.base_year or '' }}" required>
+            </label>
+        </div>
 
-    <p class="draft-label">Год цены</p>
-    <input class="draft-field" type="text" value="{{ construction_resource.base_year }}">
+        <button class="draft-submit" type="submit">Опубликовать</button>
+    </form>
+    {% else %}
+    <form method="post" action="/construction-resources/draft">
+        <p class="draft-label">Название</p>
+        <input class="draft-field" type="text" name="resource_name" maxlength="100" required>
 
-    <p class="draft-label">Категория</p>
-    <div class="draft-row">
-        <label class="draft-radio">
-            <input type="radio" name="resource_category" value="работы"
-                   {% if construction_resource.resource_category == 'работы' %}checked{% endif %}>
-            работы
-        </label>
-        <label class="draft-radio">
-            <input type="radio" name="resource_category" value="материалы"
-                   {% if construction_resource.resource_category == 'материалы' %}checked{% endif %}>
-            материалы
-        </label>
-    </div>
+        <p class="draft-label">Изображение</p>
+        <input class="draft-file" type="file" accept="image/*" required>
+
+        <p class="draft-label">Видео</p>
+        <input class="draft-file" type="file" accept="video/*" required>
+
+        <button class="draft-submit" type="submit">Далее</button>
+    </form>
+    {% endif %}
 </div>
 {% endblock %}

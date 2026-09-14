@@ -16,5 +16,26 @@ services:
       - minio-data:/data
     command: server /data --console-address ":9001"
 
+  postgres:
+    container_name: construction-estimate-postgres
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: estimate_user
+      POSTGRES_PASSWORD: estimate_password
+      POSTGRES_DB: construction_estimate
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  adminer:
+    container_name: construction-estimate-adminer
+    image: adminer:latest
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+
 volumes:
   minio-data:
+  postgres-data:

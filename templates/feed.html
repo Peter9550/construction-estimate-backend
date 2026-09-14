@@ -4,9 +4,12 @@
 {% block content %}
 <div class="feed">
     <video class="feed-video"
-           poster="{{ minio_base_url }}/{{ construction_resource.image_key }}"
+           poster="{{ construction_resource.image_url or default_image_url }}"
            autoplay muted loop playsinline>
-        <source src="{{ minio_base_url }}/{{ construction_resource.video_key }}" type="video/mp4">
+        {% if construction_resource.video_url %}
+        <source src="{{ construction_resource.video_url }}" type="video/mp4">
+        {% endif %}
+        <source src="{{ default_video_url }}" type="video/mp4">
     </video>
 
     <div class="feed-shade"></div>
@@ -15,13 +18,12 @@
         <div class="feed-side">
             <div class="feed-action">
                 <span class="feed-action-circle">&#9829;</span>
-                <span class="feed-action-label">{{ construction_resource.likes_count }}</span>
+                <span class="feed-action-label">{{ likes_count }}</span>
             </div>
 
             <div class="feed-param">
                 <span class="feed-param-label">Цена</span>
-                <span class="feed-param-value">{{ construction_resource.historical_price }} {{ construction_resource.price_currency }}</span>
-                <span class="feed-param-unit">за {{ construction_resource.measure_unit }}</span>
+                <span class="feed-param-value">{{ construction_resource.historical_price }} коп.</span>
             </div>
 
             <div class="feed-param">
@@ -37,12 +39,12 @@
 
         <div class="feed-info">
             <h1 class="feed-name">{{ construction_resource.resource_name }}</h1>
-            {% if construction_resource.description_tail %}
+            {% if description_tail %}
             <details class="feed-description">
-                <summary>{{ construction_resource.description_head }}<span class="feed-more">… ещё</span></summary><span>{{ construction_resource.description_tail }}</span>
+                <summary>{{ description_head }}<span class="feed-more">… ещё</span></summary><span>{{ description_tail }}</span>
             </details>
             {% else %}
-            <p class="feed-description">{{ construction_resource.description_head }}</p>
+            <p class="feed-description">{{ description_head }}</p>
             {% endif %}
         </div>
     </div>

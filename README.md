@@ -21,6 +21,8 @@
 
 - Python 3.10, FastAPI
 - Jinja2 — шаблонизатор
+- PostgreSQL — база данных, Adminer — панель администратора
+- SQLAlchemy — ORM, Alembic — миграции
 - MinIO — хранилище изображений и видео
 - Docker Compose — для хранилищ
 
