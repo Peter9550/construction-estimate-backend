@@ -40,9 +40,8 @@
         <div class="feed-info">
             <h1 class="feed-name">{{ construction_resource.resource_name }}</h1>
             {% if description_tail %}
-            <details class="feed-description">
-                <summary>{{ description_head }}<span class="feed-more">… ещё</span></summary><span>{{ description_tail }}</span>
-            </details>
+            <input class="feed-more-toggle" type="checkbox" id="feed-more-toggle">
+            <label class="feed-description" for="feed-more-toggle">{{ description_head }}<span class="feed-more">… ещё</span><span class="feed-tail">{{ description_tail }}</span></label>
             {% else %}
             <p class="feed-description">{{ description_head }}</p>
             {% endif %}

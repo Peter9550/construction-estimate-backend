@@ -181,18 +181,17 @@ body {
 }
 
 .feed-description {
+    display: block;
     margin: 0;
     font-size: 14px;
     line-height: 1.35;
 }
 
-.feed-description summary {
-    display: inline;
-    list-style: none;
+label.feed-description {
     cursor: pointer;
 }
 
-.feed-description summary::-webkit-details-marker {
+.feed-more-toggle {
     display: none;
 }
 
@@ -201,8 +200,16 @@ body {
     font-weight: 700;
 }
 
-.feed-description[open] .feed-more {
+.feed-tail {
     display: none;
+}
+
+.feed-more-toggle:checked + .feed-description .feed-more {
+    display: none;
+}
+
+.feed-more-toggle:checked + .feed-description .feed-tail {
+    display: inline;
 }
 
 .catalog {
