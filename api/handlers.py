@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import PlainTextResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -133,7 +133,7 @@ async def get_construction_resource_feed(
         current = result.scalar_one_or_none()
 
     if current is None:
-        raise HTTPException(status_code=404, detail="Ресурс не найден")
+        return PlainTextResponse("Ресурс не найден", status_code=404)
 
     likes_count = await count_likes(db, [current.id])
     description_head, description_tail = split_description(current.resource_description)
@@ -177,7 +177,7 @@ async def publish_construction_resource_draft(
 ):
     draft = await find_draft(db)
     if draft is None:
-        raise HTTPException(status_code=404, detail="Черновик не найден")
+        return PlainTextResponse("Черновик не найден", status_code=404)
 
     draft.resource_name = resource_name
     draft.resource_description = resource_description
