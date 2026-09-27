@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.current_user import get_current_user
 from db.session import get_db
 from models.construction_work import STATUS_DRAFT, STATUS_PUBLISHED, ConstructionWork
 from models.work_like import WorkLike
@@ -13,7 +14,6 @@ templates = Jinja2Templates(directory="templates")
 templates.env.globals["default_image_url"] = "/static/img/default-work.png"
 templates.env.globals["default_video_url"] = "/static/video/default-work.mp4"
 
-CURRENT_USER_ID = 1
 DESCRIPTION_HEAD_LENGTH = 70
 
 
@@ -39,7 +39,7 @@ async def count_likes(db: AsyncSession, work_ids):
 
 async def find_draft(db: AsyncSession):
     stmt = select(ConstructionWork).where(
-        ConstructionWork.creator_id == CURRENT_USER_ID,
+        ConstructionWork.creator_id == get_current_user().id,
         ConstructionWork.work_status == STATUS_DRAFT,
     )
     result = await db.execute(stmt)
@@ -160,7 +160,7 @@ async def create_construction_work_draft(
         draft = ConstructionWork(
             work_name=work_name,
             work_status=STATUS_DRAFT,
-            creator_id=CURRENT_USER_ID,
+            creator_id=get_current_user().id,
         )
         db.add(draft)
         await db.commit()
