@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Справочник ресурсов{% endblock %}
+{% block title %}Справочник работ{% endblock %}
 
 {% block content %}
 <div class="catalog">
-    <h1 class="catalog-title">Справочник ресурсов</h1>
+    <h1 class="catalog-title">Справочник работ</h1>
 
-    <form class="catalog-filter" method="get" action="/construction-resources">
+    <form class="catalog-filter" method="get" action="/construction-works">
         <div class="catalog-filter-head">
             <span>Цена до</span>
             <span class="catalog-filter-value">{{ price_limit }} коп.</span>
@@ -20,18 +20,18 @@
     </form>
 
     <div class="catalog-grid">
-        {% for construction_resource in construction_resources %}
+        {% for construction_work in construction_works %}
         <div class="card">
-            <a class="card-link" href="/construction-resources/feed/{{ construction_resource.id }}">
+            <a class="card-link" href="/construction-works/feed/{{ construction_work.id }}">
                 <img class="card-image"
-                     src="{{ construction_resource.image_url or default_image_url }}"
+                     src="{{ construction_work.image_url or default_image_url }}"
                      onerror="this.onerror=null; this.src='{{ default_image_url }}'"
-                     alt="{{ construction_resource.resource_name }}">
-                <span class="card-name">{{ construction_resource.resource_name }}</span>
-                <span class="card-price">{{ construction_resource.historical_price }} коп. · {{ construction_resource.base_year }} г.</span>
-                <span class="card-likes">&#9829; {{ likes_count.get(construction_resource.id, 0) }}</span>
+                     alt="{{ construction_work.work_name }}">
+                <span class="card-name">{{ construction_work.work_name }}</span>
+                <span class="card-price">{{ construction_work.historical_price }} коп. · {{ construction_work.base_year }} г.</span>
+                <span class="card-likes">&#9829; {{ likes_count.get(construction_work.id, 0) }}</span>
             </a>
-            <form class="card-delete" method="post" action="/construction-resources/{{ construction_resource.id }}/delete">
+            <form class="card-delete" method="post" action="/construction-works/{{ construction_work.id }}/delete">
                 <button class="card-delete-button" type="submit">Удалить</button>
             </form>
         </div>
