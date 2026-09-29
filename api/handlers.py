@@ -9,7 +9,7 @@ from db.session import get_db
 from models.construction_work import STATUS_DRAFT, STATUS_PUBLISHED, ConstructionWork
 from models.work_like import WorkLike
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory="templates")
 templates.env.globals["default_image_url"] = "/static/img/default-work.png"
 templates.env.globals["default_video_url"] = "/static/video/default-work.mp4"
