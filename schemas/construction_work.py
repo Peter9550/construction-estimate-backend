@@ -30,4 +30,4 @@ class ConstructionWorkPublish(BaseModel):
 class WorkLikeIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    like: int = Field(ge=0, le=1)
+    like: int = Field(ge=0, le=1, strict=True)

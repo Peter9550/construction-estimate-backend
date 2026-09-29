@@ -31,54 +31,189 @@ docker compose up -d
 ./venv/bin/python main.py
 ```
 
-Веб-сервис: `http://127.0.0.1:8000/api`, документация Swagger: `http://127.0.0.1:8000/docs`.
+## Структура кода
 
-## Методы веб-сервиса
+| Путь | Назначение |
+|---|---|
+| `main.py` | Создание приложения, подключение роутеров |
+| `api/construction_works.py` | Домен «Строительные работы», 7 методов |
+| `api/users.py` | Домен «Пользователи», 3 метода |
+| `api/handlers.py` | SSR-страницы из ЛР1–ЛР2 |
+| `schemas/` | Сериализаторы Pydantic: вход и выход JSON |
+| `models/` | Модели SQLAlchemy: таблицы БД |
+| `core/current_user.py` | Функция-singleton `get_current_user()`, текущий пользователь `id = 1` |
+| `core/storage.py` | Загрузка файлов в MinIO |
+| `core/config.py` | Настройки из `.env` |
+| `alembic/versions/` | Миграции БД |
 
-Текущий пользователь в ЛР3 зафиксирован: `get_current_user()` в `core/current_user.py` всегда возвращает пользователя с `id = 1`.
+## Веб-сервис
 
-### Домен «Строительные работы» — `/api/construction-works`
+### Общие правила
 
-| № | Метод | URL | Описание | Входные данные | Выходные данные |
-|---|---|---|---|---|---|
-| 1 | GET | `/api/construction-works` | Список опубликованных работ с фильтром по цене | query `max_historical_price: int` (необязательный) | массив `ConstructionWorkOut` |
-| 2 | GET | `/api/construction-works/feed` | Первая опубликованная работа ленты | — | `ConstructionWorkOut` |
-| 3 | GET | `/api/construction-works/feed/{work_id}` | Работа ленты по id, с `?next=true` — следующая после неё (после последней — снова первая) | path `work_id: int`, query `next: bool` | `ConstructionWorkOut` |
-| 4 | GET | `/api/construction-works/draft` | Черновик текущего пользователя (не больше одного, id не передаётся) | — | `ConstructionWorkOut` |
-| 5 | POST | `/api/construction-works` | Создание черновика с загрузкой фото и видео в MinIO | form-data: `work_name: str`, `image: file`, `video: file` | `ConstructionWorkOut`, код 201 |
-| 6 | PUT | `/api/construction-works/draft/publish` | Публикация черновика: статус «черновик» → «опубликован» | JSON `ConstructionWorkPublish`: `work_description: str`, `historical_price: int`, `base_year: int` | `ConstructionWorkOut` |
-| 7 | DELETE | `/api/construction-works/{work_id}` | Мягкое удаление своей работы: статус → «удален» | path `work_id: int` | `message: str` |
-| 8 | POST | `/api/construction-works/{work_id}/like` | Поставить (1) или снять (0) лайк | path `work_id: int`, JSON `WorkLikeIn`: `like: 0 \| 1` | `ConstructionWorkOut` |
+- Базовый адрес: `http://127.0.0.1:8000`, все методы начинаются с `/api`. Swagger: `http://127.0.0.1:8000/docs`.
+- Формат тел запросов и ответов — JSON. Исключение: метод 4 принимает `multipart/form-data`, потому что передаёт файлы.
+- Текущий пользователь зафиксирован функцией-singleton `get_current_user()`: это пользователь `id = 1` (`petrov`). Авторизация появится в ЛР4.
+- Работы в статусе `удален` ни одним методом не отдаются.
+- Системные поля (`id`, `work_status`, `creator_id`, `created_at`, `formed_at`) вычисляются на бэкенде. Если прислать их в JSON, будет ошибка 422.
+- Ошибка всегда приходит как `{"detail": "текст"}`. Для 422 `detail` — это список полей с причинами.
+- Статусы работы меняются только так: `черновик → опубликован` (метод 5), `черновик / опубликован → удален` (метод 6). Вернуть в черновик нельзя.
 
-Поля `ConstructionWorkOut`: `id`, `work_name`, `work_description`, `work_status`, `image_url`, `video_url`,
-`historical_price`, `base_year`, `created_at`, `formed_at`, `likes_count`, `is_mine` (0/1 — работа создана текущим пользователем),
-`is_liked` (0/1 — текущий пользователь поставил лайк).
-
-Правила:
-- работы в статусе «удален» клиенту не отдаются;
-- статус меняется только двумя методами создателя: публикация (6) и удаление (7); вернуть работу в черновик нельзя;
-- системные поля (`id`, `work_status`, `creator_id`, `created_at`, `formed_at`) с клиента не принимаются — лишнее поле в JSON даёт ошибку 422;
-- файлы получают латинское имя `image-<uuid>.<расширение>` / `video-<uuid>.<расширение>`, в БД сохраняется ссылка на файл в бакете `construction-work-media`.
-
-### Домен «Пользователи» — `/api/users`
-
-| № | Метод | URL | Описание | Входные данные | Выходные данные |
-|---|---|---|---|---|---|
-| 9 | POST | `/api/users/register` | Регистрация пользователя | JSON `UserRegister`: `user_login: str`, `password: str` | `UserOut`: `id`, `user_login`, код 201 |
-| 10 | POST | `/api/users/login` | Аутентификация (заглушка до ЛР4) | — | `message: str` |
-| 11 | POST | `/api/users/logout` | Деавторизация (заглушка до ЛР4) | — | `message: str` |
-
-### Коды ответов
+Коды ответов:
 
 | Код | Когда |
 |---|---|
-| 200 | Успешный запрос |
+| 200 | Успех |
 | 201 | Создана работа или пользователь |
 | 400 | Черновик уже есть; файл не того типа |
-| 403 | Попытка удалить чужую работу |
+| 403 | Удаление чужой работы |
 | 404 | Работа или черновик не найдены |
 | 409 | Логин уже занят |
-| 422 | Неверные или лишние поля в запросе |
+| 422 | Неверные, лишние или отсутствующие поля |
+
+### Объект `ConstructionWorkOut`
+
+Его возвращают методы 1–5 и 7.
+
+| Поле | Тип | Описание |
+|---|---|---|
+| `id` | int | Идентификатор работы |
+| `work_name` | str | Название |
+| `work_description` | str \| null | Описание, у черновика `null` |
+| `work_status` | str | `черновик` или `опубликован` |
+| `image_url` | str \| null | Ссылка на изображение в MinIO |
+| `video_url` | str \| null | Ссылка на видео в MinIO |
+| `historical_price` | int \| null | Историческая цена за единицу, коп. |
+| `base_year` | int \| null | Год цены |
+| `created_at` | datetime | Дата создания |
+| `formed_at` | datetime \| null | Дата публикации |
+| `likes_count` | int | Количество лайков |
+| `is_mine` | 0 \| 1 | 1 — работу создал текущий пользователь |
+| `is_liked` | 0 \| 1 | 1 — текущий пользователь поставил лайк |
+
+Пример:
+
+```json
+{
+  "id": 1,
+  "work_name": "Каменная кладка",
+  "work_description": "Поденная плата каменщику…",
+  "work_status": "опубликован",
+  "image_url": "http://localhost:9000/construction-work-media/masonry.jpg",
+  "video_url": "http://localhost:9000/construction-work-media/masonry.mp4",
+  "historical_price": 117,
+  "base_year": 1880,
+  "created_at": "2026-09-13T13:01:04.620925",
+  "formed_at": "2026-09-13T13:01:04.620925",
+  "likes_count": 5,
+  "is_mine": 1,
+  "is_liked": 1
+}
+```
+
+### Домен «Строительные работы» — `/api/construction-works`
+
+#### 1. `GET /api/construction-works` — список с фильтром
+
+Опубликованные работы по возрастанию `id`.
+
+- Query: `max_historical_price` (int, необязательный) — оставить работы с ценой не больше указанной.
+- Ответ 200: массив `ConstructionWorkOut`.
+- Ошибки: 422 — `max_historical_price` не число.
+- Пример: `GET /api/construction-works?max_historical_price=125`
+
+#### 2. `GET /api/construction-works/feed` — лента
+
+Одна опубликованная работа.
+
+- Query:
+  - `work_id` (int, необязательный) — какую работу показать;
+  - `next` (bool, по умолчанию `false`) — показать следующую после `work_id`.
+- Логика:
+  - без параметров — первая работа;
+  - `?work_id=5` — работа 5;
+  - `?work_id=5&next=true` — первая опубликованная с `id > 5`; после последней снова первая.
+- Ответ 200: `ConstructionWorkOut`.
+- Ошибки: 404 — работа не найдена или не опубликована.
+- Примеры: `GET /api/construction-works/feed`, `GET /api/construction-works/feed?work_id=1&next=true`
+
+#### 3. `GET /api/construction-works/draft` — черновик
+
+Черновик текущего пользователя. У пользователя не больше одного черновика, `id` не передаётся.
+
+- Ответ 200: `ConstructionWorkOut` со статусом `черновик`.
+- Ошибки: 404 — черновика нет.
+
+#### 4. `POST /api/construction-works` — добавление с файлами
+
+Создаёт черновик текущего пользователя и загружает файлы в MinIO, бакет `construction-work-media`. Файлам даются латинские имена `image-<uuid>.<расширение>` и `video-<uuid>.<расширение>`, ссылки сохраняются в `image_url` и `video_url`.
+
+- Тело `multipart/form-data`:
+  - `work_name` (text, обязательный, 1–100 символов);
+  - `image` (file, необязательный, тип `image/*`);
+  - `video` (file, необязательный, тип `video/*`).
+- Ответ 201: `ConstructionWorkOut` со статусом `черновик`.
+- Ошибки:
+  - 400 — у пользователя уже есть черновик;
+  - 400 — в `image` не изображение или в `video` не видео;
+  - 422 — нет `work_name`.
+
+#### 5. `PUT /api/construction-works/draft/publish` — публикация
+
+Меняет статус черновика текущего пользователя на `опубликован`, заполняет поля по теме и `formed_at`.
+
+- Тело JSON (`ConstructionWorkPublish`), других полей нельзя:
+  - `work_description` (str, 1–500 символов);
+  - `historical_price` (int, > 0);
+  - `base_year` (int, 1000–2100).
+- Пример тела:
+  ```json
+  {"work_description": "Известь для кладочного раствора.", "historical_price": 90, "base_year": 1880}
+  ```
+- Ответ 200: `ConstructionWorkOut` со статусом `опубликован`.
+- Ошибки: 404 — черновика нет; 422 — неверные или лишние поля.
+
+#### 6. `DELETE /api/construction-works/{work_id}` — удаление
+
+Мягкое удаление: запись остаётся в БД, статус становится `удален`. Удалять можно только свои работы.
+
+- Path: `work_id` (int).
+- Ответ 200: `{"message": "Работа 15 удалена"}`.
+- Ошибки: 404 — работы нет или она уже удалена; 403 — работа чужая.
+
+#### 7. `POST /api/construction-works/{work_id}/like` — лайк
+
+Ставит или снимает лайк текущего пользователя.
+
+- Path: `work_id` (int) — опубликованная работа.
+- Тело JSON (`WorkLikeIn`): `like` — строго целое `0` или `1`.
+  - `1` — поставить лайк. Если он уже стоит, ничего не меняется.
+  - `0` — снять лайк. Если его нет, ничего не меняется.
+- Повторный запрос с тем же значением не меняет данные: второго лайка не бывает.
+- Пример тела: `{"like": 1}`
+- Ответ 200: `ConstructionWorkOut` с новыми `likes_count` и `is_liked`.
+- Ошибки:
+  - 404 — работа не найдена, черновик или удалена;
+  - 422 — `like` не 0 и не 1 (`2`, `true`, `"1"`), поле отсутствует или есть лишние поля.
+
+### Домен «Пользователи» — `/api/users`
+
+#### 8. `POST /api/users/register` — регистрация
+
+- Тело JSON (`UserRegister`):
+  - `user_login` (str, 3–50 символов, уникальный);
+  - `password` (str, 6–100 символов).
+- Пароль хранится как хеш SHA-256 в `password_hash`.
+- Пример тела: `{"user_login": "ivanov", "password": "secret123"}`
+- Ответ 201: `{"id": 8, "user_login": "ivanov"}`.
+- Ошибки: 409 — логин занят; 422 — неверные или лишние поля.
+
+#### 9. `POST /api/users/login` — аутентификация
+
+Заглушка до ЛР4. Ответ 200: `{"message": "Аутентификация появится в ЛР4"}`.
+
+#### 10. `POST /api/users/logout` — деавторизация
+
+Заглушка до ЛР4. Ответ 200: `{"message": "Деавторизация появится в ЛР4"}`.
 
 ## Таблицы базы данных
 

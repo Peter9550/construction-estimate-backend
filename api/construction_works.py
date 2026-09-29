@@ -75,7 +75,6 @@ async def get_construction_works(
 
 
 @router.get("/feed", response_model=ConstructionWorkOut)
-@router.get("/feed/{work_id}", response_model=ConstructionWorkOut)
 async def get_construction_work_feed(
     work_id: int = 0,
     next: bool = False,
