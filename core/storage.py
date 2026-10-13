@@ -13,6 +13,14 @@ minio_client = Minio(
 )
 
 
+def file_url(file_name):
+    return f"http://{settings.MINIO_ENDPOINT}/{settings.MINIO_BUCKET}/{file_name}"
+
+
+DEFAULT_IMAGE_URL = file_url("default-work.png")
+DEFAULT_VIDEO_URL = file_url("default-work.mp4")
+
+
 async def upload_file(file, prefix):
     extension = file.filename.rsplit(".", 1)[-1].lower()
     file_name = f"{prefix}-{uuid.uuid4().hex}.{extension}"
@@ -24,4 +32,4 @@ async def upload_file(file, prefix):
         len(data),
         content_type=file.content_type,
     )
-    return f"http://{settings.MINIO_ENDPOINT}/{settings.MINIO_BUCKET}/{file_name}"
+    return file_url(file_name)

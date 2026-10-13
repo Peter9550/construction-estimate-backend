@@ -5,6 +5,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.current_user import get_current_user
+from core.storage import DEFAULT_IMAGE_URL, DEFAULT_VIDEO_URL
 from db.session import get_db
 from models.construction_work import STATUS_DRAFT, STATUS_PUBLISHED, ConstructionWork
 from models.work_like import WorkLike
@@ -161,6 +162,8 @@ async def create_construction_work_draft(
             work_name=work_name,
             work_status=STATUS_DRAFT,
             creator_id=get_current_user().id,
+            image_url=DEFAULT_IMAGE_URL,
+            video_url=DEFAULT_VIDEO_URL,
         )
         db.add(draft)
         await db.commit()

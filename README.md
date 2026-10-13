@@ -80,8 +80,8 @@ docker compose up -d
 | `work_name` | str | Название |
 | `work_description` | str \| null | Описание, у черновика `null` |
 | `work_status` | str | `черновик` или `опубликован` |
-| `image_url` | str \| null | Ссылка на изображение в MinIO |
-| `video_url` | str \| null | Ссылка на видео в MinIO |
+| `image_url` | str | Ссылка на изображение в MinIO |
+| `video_url` | str | Ссылка на видео в MinIO |
 | `historical_price` | int \| null | Историческая цена за единицу, коп. |
 | `base_year` | int \| null | Год цены |
 | `created_at` | datetime | Дата создания |
@@ -149,13 +149,13 @@ docker compose up -d
 
 - Тело `multipart/form-data`:
   - `work_name` (text, обязательный, 1-100 символов);
-  - `image` (file, необязательный, тип `image/*`);
-  - `video` (file, необязательный, тип `video/*`).
+  - `image` (file, обязательный, тип `image/*`);
+  - `video` (file, обязательный, тип `video/*`).
 - Ответ 201: `ConstructionWorkOut` со статусом `черновик`.
 - Ошибки:
   - 400 - у пользователя уже есть черновик;
   - 400 - в `image` не изображение или в `video` не видео;
-  - 422 - нет `work_name`.
+  - 422 - нет `work_name`, `image` или `video`.
 
 #### 5. `PUT /api/construction-works/draft/publish` - публикация
 
@@ -223,7 +223,7 @@ docker compose up -d
 |---|---|---|
 | `id` | integer, PK | Идентификатор |
 | `user_login` | varchar(50), unique, not null | Логин |
-| `password_hash` | varchar(64) | Хеш пароля SHA-256 |
+| `password_hash` | varchar(64), not null | Хеш пароля SHA-256 |
 
 ### `construction_works` - строительные работы (услуги)
 
@@ -233,8 +233,8 @@ docker compose up -d
 | `work_name` | varchar(100), not null | Название работы |
 | `work_description` | varchar(500) | Описание |
 | `work_status` | varchar(20), not null | Статус: `черновик`, `опубликован`, `удален` |
-| `image_url` | varchar(255) | Ссылка на изображение в MinIO |
-| `video_url` | varchar(255) | Ссылка на видео в MinIO |
+| `image_url` | varchar(255), not null | Ссылка на изображение в MinIO |
+| `video_url` | varchar(255), not null | Ссылка на видео в MinIO |
 | `historical_price` | integer | Историческая цена за единицу, коп. |
 | `base_year` | integer | Год, к которому относится цена |
 | `created_at` | timestamp, not null | Дата создания |

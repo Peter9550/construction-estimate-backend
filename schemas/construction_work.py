@@ -8,8 +8,8 @@ class ConstructionWorkOut(BaseModel):
     work_name: str
     work_description: str | None
     work_status: str
-    image_url: str | None
-    video_url: str | None
+    image_url: str
+    video_url: str
     historical_price: int | None
     base_year: int | None
     created_at: datetime

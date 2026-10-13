@@ -124,23 +124,25 @@ async def get_construction_work_draft(
 @router.post("", response_model=ConstructionWorkOut, status_code=201)
 async def create_construction_work(
     work_name: str = Form(min_length=1, max_length=100),
-    image: UploadFile | None = File(None),
-    video: UploadFile | None = File(None),
+    image: UploadFile = File(...),
+    video: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
 ):
     if await find_draft(db, user) is not None:
         raise HTTPException(status_code=400, detail="Черновик уже есть, сначала опубликуйте его")
-    if image and not image.content_type.startswith("image/"):
+    if not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Поле image должно быть изображением")
-    if video and not video.content_type.startswith("video/"):
+    if not video.content_type.startswith("video/"):
         raise HTTPException(status_code=400, detail="Поле video должно быть видео")
 
-    draft = ConstructionWork(work_name=work_name, work_status=STATUS_DRAFT, creator_id=user.id)
-    if image:
-        draft.image_url = await upload_file(image, "image")
-    if video:
-        draft.video_url = await upload_file(video, "video")
+    draft = ConstructionWork(
+        work_name=work_name,
+        work_status=STATUS_DRAFT,
+        creator_id=user.id,
+        image_url=await upload_file(image, "image"),
+        video_url=await upload_file(video, "video"),
+    )
 
     db.add(draft)
     await db.commit()
