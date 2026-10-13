@@ -4,10 +4,11 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.current_user import get_current_user
+from core.current_user import get_optional_user
 from core.storage import DEFAULT_IMAGE_URL, DEFAULT_VIDEO_URL
 from db.session import get_db
 from models.construction_work import STATUS_DRAFT, STATUS_PUBLISHED, ConstructionWork
+from models.user import User
 from models.work_like import WorkLike
 
 router = APIRouter(include_in_schema=False)
@@ -38,9 +39,11 @@ async def count_likes(db: AsyncSession, work_ids):
     return dict(result.all())
 
 
-async def find_draft(db: AsyncSession):
+async def find_draft(db: AsyncSession, user: User | None):
+    if user is None:
+        return None
     stmt = select(ConstructionWork).where(
-        ConstructionWork.creator_id == get_current_user().id,
+        ConstructionWork.creator_id == user.id,
         ConstructionWork.work_status == STATUS_DRAFT,
     )
     result = await db.execute(stmt)
@@ -93,8 +96,12 @@ async def get_construction_work_catalog(
 
 
 @router.get("/construction-works/draft")
-async def get_construction_work_draft(request: Request, db: AsyncSession = Depends(get_db)):
-    draft = await find_draft(db)
+async def get_construction_work_draft(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_optional_user),
+):
+    draft = await find_draft(db, user)
     return templates.TemplateResponse(
         request=request,
         name="draft.html",
@@ -156,12 +163,15 @@ async def get_construction_work_feed(
 async def create_construction_work_draft(
     work_name: str = Form(...),
     db: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_optional_user),
 ):
-    if await find_draft(db) is None:
+    if user is None:
+        return PlainTextResponse("Нужно войти в систему", status_code=401)
+    if await find_draft(db, user) is None:
         draft = ConstructionWork(
             work_name=work_name,
             work_status=STATUS_DRAFT,
-            creator_id=get_current_user().id,
+            creator_id=user.id,
             image_url=DEFAULT_IMAGE_URL,
             video_url=DEFAULT_VIDEO_URL,
         )
@@ -176,8 +186,9 @@ async def publish_construction_work_draft(
     historical_price: int = Form(...),
     base_year: int = Form(...),
     db: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_optional_user),
 ):
-    draft = await find_draft(db)
+    draft = await find_draft(db, user)
     if draft is None:
         return PlainTextResponse("Черновик не найден", status_code=404)
 

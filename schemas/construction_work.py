@@ -22,12 +22,14 @@ class ConstructionWorkOut(BaseModel):
 class ConstructionWorkPublish(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    work_description: str = Field(min_length=1, max_length=500)
-    historical_price: int = Field(gt=0)
-    base_year: int = Field(ge=1000, le=2100)
+    work_description: str = Field(
+        min_length=1, max_length=500, examples=["Известь для кладочного раствора и штукатурки."]
+    )
+    historical_price: int = Field(gt=0, examples=[90])
+    base_year: int = Field(ge=1000, le=2100, examples=[1880])
 
 
 class WorkLikeIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    like: int = Field(ge=0, le=1, strict=True)
+    like: int = Field(ge=0, le=1, strict=True, examples=[1])

@@ -5,7 +5,14 @@ from fastapi.staticfiles import StaticFiles
 from api import construction_works, users
 from api.handlers import router
 
-app = FastAPI(title="Справочник строительных работ")
+app = FastAPI(
+    title="Справочник строительных работ",
+    description=(
+        "Сессионная аутентификация через куку sessionId, сессии хранятся в Redis. "
+        "Без входа доступны только GET списка и ленты. "
+        "Для методов создателя выполните POST /api/users/login: браузер сохранит куку и будет отправлять её сам."
+    ),
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(router)
 app.include_router(construction_works.router)

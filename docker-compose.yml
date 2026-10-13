@@ -36,6 +36,15 @@ services:
     depends_on:
       - postgres
 
+  redis:
+    container_name: construction-estimate-redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
 volumes:
   minio-data:
   postgres-data:
+  redis-data:
