@@ -54,7 +54,7 @@ docker compose up -d
 
 - Базовый адрес: `http://127.0.0.1:8000`, все методы начинаются с `/api`. Swagger: `http://127.0.0.1:8000/docs`.
 - Формат тел запросов и ответов - JSON. Исключение: метод 4 принимает `multipart/form-data`, потому что передаёт файлы.
-- Авторизация через сессии и куки. Метод 9 (`login`) создаёт в Redis запись `session:<uuid>` со значением `id` пользователя на 1 час и ставит куку `sessionId` (HttpOnly). Браузер сам отправляет куку в каждом запросе, по ней бэкенд находит пользователя. Метод 10 (`logout`) удаляет запись из Redis и куку.
+- Авторизация через сессии и куки. Метод 9 (`login`) создаёт в Redis хеш `session:<uuid>` с полями `user_id` и `user_login` на 1 час и ставит куку `sessionId` (HttpOnly). Браузер сам отправляет куку в каждом запросе, по ней бэкенд находит пользователя. Метод 10 (`logout`) удаляет запись из Redis и куку.
 - Без входа доступны только методы 1 и 2 (чтение), у гостя `is_mine` и `is_liked` всегда 0. Методы 3-7 - методы создателя, без куки или с недействительной кукой они отвечают 401.
 - Создатель работы (`creator_id`) берётся из сессии, с клиента не передаётся.
 - В Swagger методы создателя отмечены замком. Чтобы их вызвать, выполните метод 9: кука сохранится в браузере.
@@ -223,7 +223,7 @@ docker compose up -d
 - Тело JSON (`UserLogin`): `user_login` (str), `password` (str).
 - Пример тела: `{"user_login": "petrov", "password": "password123"}`
 - Ответ 200: `{"id": 1, "user_login": "petrov"}` и заголовок `Set-Cookie: sessionId=<uuid>; HttpOnly; Max-Age=3600; Path=/; SameSite=lax`.
-- В Redis появляется ключ `session:<uuid>` со значением `1` (id пользователя), срок жизни 3600 секунд.
+- В Redis появляется хеш `session:<uuid>` с полями `user_id` = `1` и `user_login` = `petrov`, срок жизни 3600 секунд.
 - Ошибки: 401 - неверный логин или пароль; 422 - нет полей или есть лишние.
 
 #### 10. `POST /api/users/logout` - деавторизация
@@ -231,6 +231,23 @@ docker compose up -d
 Удаляет сессию из Redis и куку `sessionId`. Старая кука после этого даёт 401. Доступ: создатель.
 
 - Ответ 200: `{"message": "Сессия завершена"}` и заголовок `Set-Cookie` с пустой `sessionId` и `Max-Age=0`.
+
+## Сессии в Redis
+
+Посмотреть сессии:
+
+```
+docker exec -it construction-estimate-redis redis-cli
+keys *
+hgetall session:<uuid>
+ttl session:<uuid>
+```
+
+Список логинов пользователей с активными сессиями (Lua-скрипт):
+
+```
+EVAL "local logins = {} for _, key in ipairs(redis.call('keys', 'session:*')) do table.insert(logins, redis.call('hget', key, 'user_login')) end return logins" 0
+```
 
 ## Таблицы базы данных
 

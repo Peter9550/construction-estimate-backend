@@ -52,7 +52,7 @@ async def login_user(data: UserLogin, response: Response, db: AsyncSession = Dep
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
 
     session_id = str(uuid.uuid4())
-    await create_session(session_id, user.id)
+    await create_session(session_id, user)
     response.set_cookie(
         SESSION_COOKIE,
         session_id,
