@@ -243,10 +243,11 @@ hgetall session:<uuid>
 ttl session:<uuid>
 ```
 
-Список логинов пользователей с активными сессиями (Lua-скрипт):
+Список логинов пользователей с активными сессиями - Lua-скрипт `redis/active_logins.lua`:
 
 ```
-EVAL "local logins = {} for _, key in ipairs(redis.call('keys', 'session:*')) do table.insert(logins, redis.call('hget', key, 'user_login')) end return logins" 0
+cat redis/active_logins.lua
+docker exec construction-estimate-redis redis-cli EVAL "$(cat redis/active_logins.lua)" 0
 ```
 
 ## Таблицы базы данных
