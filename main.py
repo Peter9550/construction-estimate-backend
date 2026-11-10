@@ -12,6 +12,7 @@ app = FastAPI(
         "Без входа доступны только GET списка и ленты. "
         "Для методов создателя выполните POST /api/users/login: браузер сохранит куку и будет отправлять её сам."
     ),
+    generate_unique_id_function=lambda route: route.name,
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(router)
